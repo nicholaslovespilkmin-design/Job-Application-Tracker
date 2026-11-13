@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, select, textarea %}
+{% block title %}{{ 'Edit' if is_edit else 'Add' }} contact{% endblock %}
+{% block content %}
+  <h1>{{ 'Edit' if is_edit else 'Add' }} contact</h1>
+  {% if not companies %}
+    <p class="empty">You need a company first. <a href="{{ url_for('companies_new') }}">Add a company.</a></p>
+  {% else %}
+  <form method="post" class="card form-grid">
+    {{ select(item, 'company_id', 'Company', companies, 'company_id', 'company_name') }}
+    {{ field(item, 'contact_name', 'Name', required=true) }}
+    {{ field(item, 'title', 'Job title', placeholder='e.g. Recruiter') }}
+    {{ field(item, 'email', 'Email', type='email') }}
+    {{ field(item, 'phone', 'Phone', type='tel') }}
+    {{ field(item, 'linkedin_url', 'LinkedIn URL', type='url', placeholder='https://linkedin.com/in/...') }}
+    {{ textarea(item, 'notes', 'Notes') }}
+    <div class="form-actions wide">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn" href="{{ url_for('contacts') }}">Cancel</a>
+    </div>
+  </form>
+  {% endif %}
+{% endblock %}

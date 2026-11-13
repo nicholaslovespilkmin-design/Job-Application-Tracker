@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button, skill_tags %}
+{% block title %}Jobs{% endblock %}
+{% block content %}
+  <div class="page-head">
+    <h1>Jobs</h1>
+    <a class="btn btn-primary" href="{{ url_for('jobs_new') }}">+ Add job</a>
+  </div>
+
+  {% if jobs %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Title</th><th>Company</th><th>Type</th><th>Salary</th><th>Posted</th><th>Skills</th><th></th></tr></thead>
+      <tbody>
+        {% for j in jobs %}
+          <tr>
+            <td>
+              <strong>{{ j.job_title }}</strong>
+              {% if j.job_url %}<br><a class="small" href="{{ j.job_url }}" target="_blank" rel="noopener">posting ↗</a>{% endif %}
+            </td>
+            <td>{{ j.company_name }}</td>
+            <td>{{ j.job_type }}</td>
+            <td class="nowrap">
+              {% if j.salary_min is not none and j.salary_max is not none %}{{ j.salary_min|money }} – {{ j.salary_max|money }}
+              {% elif j.salary_min is not none %}from {{ j.salary_min|money }}
+              {% elif j.salary_max is not none %}up to {{ j.salary_max|money }}{% endif %}
+            </td>
+            <td class="nowrap">{{ j.date_posted or '' }}</td>
+            <td>{{ skill_tags(j.requirements) }}</td>
+            <td class="actions">
+              <a class="btn btn-small" href="{{ url_for('applications_new', job_id=j.job_id) }}">Apply</a>
+              <a class="btn btn-small" href="{{ url_for('jobs_edit', job_id=j.job_id) }}">Edit</a>
+              {{ delete_button(url_for('jobs_delete', job_id=j.job_id),
+                   'Delete ' ~ j.job_title ~ ' at ' ~ j.company_name ~ '? Any applications for it will also be deleted.') }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  {% else %}
+    <p class="empty">No jobs yet. <a href="{{ url_for('jobs_new') }}">Add one.</a></p>
+  {% endif %}
+{% endblock %}

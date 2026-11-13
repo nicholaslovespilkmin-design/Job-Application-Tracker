@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+  <div class="page-head">
+    <h1>Dashboard</h1>
+    <a class="btn btn-primary" href="{{ url_for('applications_new') }}">+ New application</a>
+  </div>
+
+  <section class="cards">
+    {% for key, label, endpoint in [('applications', 'Applications', 'applications'),
+                                    ('jobs', 'Jobs tracked', 'jobs'),
+                                    ('companies', 'Companies', 'companies'),
+                                    ('contacts', 'Contacts', 'contacts')] %}
+      <a class="card stat" href="{{ url_for(endpoint) }}">
+        <span class="stat-value">{{ stats.counts[key] }}</span>
+        <span class="stat-label">{{ label }}</span>
+      </a>
+    {% endfor %}
+    <div class="card stat">
+      <span class="stat-value">{{ stats.response_rate }}%</span>
+      <span class="stat-label">Response rate</span>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2>Applications by status</h2>
+      {% set total = stats.counts.applications %}
+      <ul class="bars">
+        {% for status, n in stats.by_status.items() %}
+          <li>
+            <a href="{{ url_for('applications', status=status) }}">{{ status_badge(status) }}</a>
+            <div class="bar"><div class="bar-fill status-{{ status|lower }}"
+                 style="width: {{ (100 * n / total)|round(1) if total else 0 }}%"></div></div>
+            <span class="bar-n">{{ n }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <p class="muted small">Response rate = applications that moved past “Applied” (excluding withdrawn).</p>
+    </section>
+
+    <section class="card">
+      <h2>Recent applications</h2>
+      {% if stats.recent_applications %}
+        <table>
+          <thead><tr><th>Job</th><th>Company</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for a in stats.recent_applications %}
+              <tr>
+                <td><a href="{{ url_for('applications_edit', application_id=a.application_id) }}">{{ a.job_title }}</a></td>
+                <td>{{ a.company_name }}</td>
+                <td>{{ a.application_date }}</td>
+                <td>{{ status_badge(a.status) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No applications yet.</p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

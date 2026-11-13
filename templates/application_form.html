@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, select %}
+{% block title %}{{ 'Edit' if is_edit else 'Add' }} application{% endblock %}
+{% block content %}
+  <h1>{{ 'Edit' if is_edit else 'Add' }} application</h1>
+  {% if not jobs %}
+    <p class="empty">You need a job first. <a href="{{ url_for('jobs_new') }}">Add a job.</a></p>
+  {% else %}
+  {# interview_data is a dict when loaded from the DB, a string when re-showing a failed POST #}
+  {% set idata = item.interview_data %}
+  {% set idata_text = idata if idata is string else (idata|tojson(indent=2) if idata else '') %}
+  <form method="post" class="card form-grid">
+    {{ select(item, 'job_id', 'Job', jobs, 'job_id', 'label') }}
+    {{ field(item, 'application_date', 'Date applied', type='date', required=true) }}
+    <label>
+      <span>Status <em>*</em></span>
+      <select name="status" required>
+        {% for s in APPLICATION_STATUSES %}<option {{ 'selected' if item.status == s }}>{{ s }}</option>{% endfor %}
+      </select>
+    </label>
+    {{ field(item, 'resume_version', 'Résumé version', placeholder='e.g. v3-backend') }}
+    <label class="check">
+      <input type="checkbox" name="cover_letter_sent" {{ 'checked' if item.cover_letter_sent }}>
+      <span>Cover letter sent</span>
+    </label>
+    <label class="wide">
+      <span>Interview data (JSON)</span>
+      <textarea name="interview_data" rows="7" class="mono"
+        placeholder='{"rounds": [{"date": "2026-10-02", "type": "Phone", "interviewer": "Jane Doe", "notes": "Went well"}]}'>{{ idata_text }}</textarea>
+      <small class="muted">Optional. Must be a JSON object; a <code>rounds</code> list is shown on the Applications page.</small>
+    </label>
+    <div class="form-actions wide">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn" href="{{ url_for('applications') }}">Cancel</a>
+    </div>
+  </form>
+  {% endif %}
+{% endblock %}

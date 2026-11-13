@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import skill_tags %}
+{% block title %}Job Match{% endblock %}
+{% block content %}
+  <h1>Job Match</h1>
+  <p class="muted">Enter your skills to see which jobs fit best. Match % is how many of a job's required skills you have.</p>
+
+  <form method="get" class="card match-form">
+    <label class="wide">
+      <span>Your skills</span>
+      <input type="text" name="skills" value="{{ skills_text }}" placeholder="Python, SQL, Flask" autofocus>
+    </label>
+    <button type="submit" class="btn btn-primary">Find matches</button>
+  </form>
+
+  {% if skills %}
+    <p><strong>Your skills:</strong> {{ skills|join(', ') }}</p>
+    <h2>Matching jobs</h2>
+    {% if results %}
+      <ol class="matches">
+        {% for r in results %}
+          <li class="card match">
+            <div class="match-head">
+              <div>
+                <span class="rank">{{ loop.index }}.</span>
+                <strong>{{ r.job_title }}</strong> at {{ r.company_name }}
+                <span class="muted small">· {{ r.job_type }}</span>
+              </div>
+              <div class="match-score">
+                <span class="pct">{{ r.percent }}%</span>
+                <span class="muted small">({{ r.matched|length }}/{{ r.requirements|length }} skills)</span>
+              </div>
+            </div>
+            <div class="bar"><div class="bar-fill {{ 'good' if r.percent >= 75 else ('ok' if r.percent >= 50 else 'low') }}" style="width: {{ r.percent }}%"></div></div>
+            <div class="match-skills">
+              <div><span class="muted small">Have:</span> {{ skill_tags(r.matched, 'tag-have') }}</div>
+              {% if r.missing %}<div><span class="muted small">Missing:</span> {{ skill_tags(r.missing, 'tag-missing') }}</div>{% endif %}
+            </div>
+            <div><a class="btn btn-small" href="{{ url_for('applications_new', job_id=r.job_id) }}">Apply</a></div>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="empty">None of the jobs require those skills.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

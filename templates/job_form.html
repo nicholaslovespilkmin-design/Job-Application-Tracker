@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, select %}
+{% block title %}{{ 'Edit' if is_edit else 'Add' }} job{% endblock %}
+{% block content %}
+  <h1>{{ 'Edit' if is_edit else 'Add' }} job</h1>
+  {% if not companies %}
+    <p class="empty">You need a company first. <a href="{{ url_for('companies_new') }}">Add a company.</a></p>
+  {% else %}
+  {# requirements is a list when loaded from the DB, a string when re-showing a failed POST #}
+  {% set reqs = item.requirements %}
+  {% set reqs_text = reqs if reqs is string else (reqs or [])|join(', ') %}
+  <form method="post" class="card form-grid">
+    {{ select(item, 'company_id', 'Company', companies, 'company_id', 'company_name') }}
+    {{ field(item, 'job_title', 'Job title', required=true) }}
+    <label>
+      <span>Job type <em>*</em></span>
+      <select name="job_type" required>
+        {% for t in JOB_TYPES %}<option {{ 'selected' if item.job_type == t }}>{{ t }}</option>{% endfor %}
+      </select>
+    </label>
+    {{ field(item, 'date_posted', 'Date posted', type='date') }}
+    {{ field(item, 'salary_min', 'Salary min ($/yr)', type='number') }}
+    {{ field(item, 'salary_max', 'Salary max ($/yr)', type='number') }}
+    {{ field(item, 'job_url', 'Posting URL', type='url', placeholder='https://') }}
+    <label class="wide">
+      <span>Required skills</span>
+      <input type="text" name="requirements" value="{{ reqs_text }}" placeholder="Python, SQL, Flask">
+      <small class="muted">Comma-separated. Used by Job Match.</small>
+    </label>
+    <div class="form-actions wide">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn" href="{{ url_for('jobs') }}">Cancel</a>
+    </div>
+  </form>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, textarea %}
+{% block title %}{{ 'Edit' if is_edit else 'Add' }} company{% endblock %}
+{% block content %}
+  <h1>{{ 'Edit' if is_edit else 'Add' }} company</h1>
+  <form method="post" class="card form-grid">
+    {{ field(item, 'company_name', 'Company name', required=true) }}
+    {{ field(item, 'industry', 'Industry', placeholder='e.g. Software') }}
+    {{ field(item, 'website', 'Website', type='url', placeholder='https://') }}
+    {{ field(item, 'city', 'City') }}
+    {{ field(item, 'state', 'State') }}
+    {{ textarea(item, 'notes', 'Notes') }}
+    <div class="form-actions wide">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn" href="{{ url_for('companies') }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

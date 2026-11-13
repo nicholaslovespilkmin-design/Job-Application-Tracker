@@ -1,0 +1,45 @@
+{# Small POST form for delete buttons; asks for confirmation first. #}
+{% macro delete_button(url, warning) -%}
+  <form method="post" action="{{ url }}" class="inline"
+        onsubmit="return confirm({{ warning|tojson }});">
+    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+  </form>
+{%- endmacro %}
+
+{% macro status_badge(status) -%}
+  <span class="badge status-{{ status|lower }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro skill_tags(skills, kind='') -%}
+  {% for skill in skills %}<span class="tag {{ kind }}">{{ skill }}</span>{% endfor %}
+{%- endmacro %}
+
+{# Text-like input bound to item[name]. #}
+{% macro field(item, name, label, type='text', required=false, placeholder='') -%}
+  <label>
+    <span>{{ label }}{% if required %} <em>*</em>{% endif %}</span>
+    <input type="{{ type }}" name="{{ name }}" value="{{ item[name] if item[name] is not none and item[name] is defined else '' }}"
+           {% if required %}required{% endif %} {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+           {% if type == 'number' %}min="0" step="1"{% endif %}>
+  </label>
+{%- endmacro %}
+
+{# <select> of (value, label) rows; pre-selects item[name]. #}
+{% macro select(item, name, label, options, value_key, label_key, required=true) -%}
+  <label>
+    <span>{{ label }}{% if required %} <em>*</em>{% endif %}</span>
+    <select name="{{ name }}" {% if required %}required{% endif %}>
+      <option value="">— choose —</option>
+      {% for opt in options %}
+        <option value="{{ opt[value_key] }}" {{ 'selected' if item[name]|string == opt[value_key]|string }}>{{ opt[label_key] }}</option>
+      {% endfor %}
+    </select>
+  </label>
+{%- endmacro %}
+
+{% macro textarea(item, name, label, rows=3, placeholder='') -%}
+  <label class="wide">
+    <span>{{ label }}</span>
+    <textarea name="{{ name }}" rows="{{ rows }}" placeholder="{{ placeholder }}">{{ item[name] if item[name] is not none and item[name] is defined else '' }}</textarea>
+  </label>
+{%- endmacro %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button, status_badge %}
+{% block title %}Applications{% endblock %}
+{% block content %}
+  <div class="page-head">
+    <h1>Applications</h1>
+    <a class="btn btn-primary" href="{{ url_for('applications_new') }}">+ Add application</a>
+  </div>
+
+  <div class="filters">
+    <a href="{{ url_for('applications') }}" class="chip {{ 'active' if not current_status }}">All</a>
+    {% for s in APPLICATION_STATUSES %}
+      <a href="{{ url_for('applications', status=s) }}" class="chip {{ 'active' if current_status == s }}">{{ s }}</a>
+    {% endfor %}
+  </div>
+
+  {% if applications %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Job</th><th>Company</th><th>Applied</th><th>Status</th><th>Résumé</th><th>Cover letter</th><th>Interviews</th><th></th></tr></thead>
+      <tbody>
+        {% for a in applications %}
+          {% set rounds = a.interview_data.get('rounds') or [] %}
+          <tr>
+            <td><strong>{{ a.job_title }}</strong></td>
+            <td>{{ a.company_name }}</td>
+            <td class="nowrap">{{ a.application_date }}</td>
+            <td>{{ status_badge(a.status) }}</td>
+            <td>{{ a.resume_version or '' }}</td>
+            <td>{{ '✓' if a.cover_letter_sent else '—' }}</td>
+            <td>
+              {% if rounds %}
+                <details>
+                  <summary>{{ rounds|length }} round{{ 's' if rounds|length != 1 }}</summary>
+                  <ul class="rounds">
+                    {% for r in rounds %}
+                      <li>{{ r.date }} · {{ r.type }}{% if r.interviewer %} · {{ r.interviewer }}{% endif %}
+                        {% if r.notes %}<br><span class="muted">{{ r.notes }}</span>{% endif %}</li>
+                    {% endfor %}
+                  </ul>
+                </details>
+              {% else %}—{% endif %}
+            </td>
+            <td class="actions">
+              <a class="btn btn-small" href="{{ url_for('applications_edit', application_id=a.application_id) }}">Edit</a>
+              {{ delete_button(url_for('applications_delete', application_id=a.application_id),
+                   'Delete your application to ' ~ a.job_title ~ ' at ' ~ a.company_name ~ '?') }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  {% else %}
+    <p class="empty">No applications{{ ' with status ' ~ current_status if current_status }}.</p>
+  {% endif %}
+{% endblock %}

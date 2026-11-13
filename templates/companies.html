@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import delete_button %}
+{% block title %}Companies{% endblock %}
+{% block content %}
+  <div class="page-head">
+    <h1>Companies</h1>
+    <a class="btn btn-primary" href="{{ url_for('companies_new') }}">+ Add company</a>
+  </div>
+
+  {% if companies %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Industry</th><th>Location</th><th>Jobs</th><th>Contacts</th><th>Notes</th><th></th></tr></thead>
+      <tbody>
+        {% for c in companies %}
+          <tr>
+            <td>
+              <strong>{{ c.company_name }}</strong>
+              {% if c.website %}<br><a class="small" href="{{ c.website }}" target="_blank" rel="noopener">website ↗</a>{% endif %}
+            </td>
+            <td>{{ c.industry or '' }}</td>
+            <td>{{ [c.city, c.state]|select|join(', ') }}</td>
+            <td>{{ c.job_count }}</td>
+            <td>{{ c.contact_count }}</td>
+            <td class="notes">{{ c.notes or '' }}</td>
+            <td class="actions">
+              <a class="btn btn-small" href="{{ url_for('jobs_new', company_id=c.company_id) }}">+ Job</a>
+              <a class="btn btn-small" href="{{ url_for('companies_edit', company_id=c.company_id) }}">Edit</a>
+              {{ delete_button(url_for('companies_delete', company_id=c.company_id),
+                   'Delete ' ~ c.company_name ~ '? This also deletes its ' ~ c.job_count ~ ' job(s), their applications, and ' ~ c.contact_count ~ ' contact(s).') }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  {% else %}
+    <p class="empty">No companies yet. <a href="{{ url_for('companies_new') }}">Add your first one.</a></p>
+  {% endif %}
+{% endblock %}
