@@ -1,7 +1,6 @@
 """
 app.py - Flask routes for the Job Application Tracker.
 
-All SQL lives in database.py; this file only handles requests and pages.
 Run with:  python app.py   then open http://127.0.0.1:5000
 """
 
@@ -257,7 +256,7 @@ def match_jobs(user_skills, jobs):
             "missing": missing,
             "percent": round(100 * len(matched) / len(required)),
         })
-    # Best match first; ties go to the job that uses more of your skills.
+   
     results.sort(key=lambda r: (-r["percent"], -len(r["matched"]), r["job_title"]))
     return results
 

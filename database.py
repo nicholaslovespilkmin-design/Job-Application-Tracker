@@ -1,14 +1,6 @@
 """
 database.py - all MySQL access for the Job Application Tracker.
 
-app.py should never write SQL itself; it calls the functions in this file.
-
-    from database import get_all_jobs, create_job
-    jobs = get_all_jobs()
-    new_id = create_job(request.form)
-
-Connection settings come from a .env file (see .env.example), so your
-password never ends up on GitHub.
 """
 
 import json
@@ -29,8 +21,7 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME", "job_tracker"),
 }
 
-# Allowed values - keep in sync with the ENUMs in schema.sql.
-# Use these to build <select> dropdowns in your templates.
+
 JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"]
 APPLICATION_STATUSES = ["Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"]
 
@@ -92,8 +83,7 @@ def execute(sql, params=None):
 
 
 # =====================================================================
-# Value cleaning - HTML forms send everything as strings, and an empty
-# field arrives as "" which MySQL rejects for INT/DATE columns.
+# Value cleaning 
 # =====================================================================
 
 def _clean(value):
@@ -426,7 +416,7 @@ def get_dashboard_stats():
 
 
 # =====================================================================
-# Run `python database.py` to check that your connection works.
+# Connection/Error
 # =====================================================================
 
 if __name__ == "__main__":
